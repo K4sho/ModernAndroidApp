@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -13,19 +13,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.kspavliy.educationapplication.ui.theme.EducationApplicationTheme
-import ru.kspavliy.educationapplication.ui.training.InstagramProfileCard
+import ru.kspavliy.educationapplication.ui.vkscreens.PostCard
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             EducationApplicationTheme {
-                Column(
+                Box(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
                         .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(8.dp)
                 ) {
-                    InstagramProfileCard()
+                    PostCard()
                 }
             }
         }
