@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.kspavliy.educationapplication.ui.theme.EducationApplicationTheme
+import ru.kspavliy.educationapplication.ui.vkscreens.MainScreen
 import ru.kspavliy.educationapplication.ui.vkscreens.PostCard
 
 class MainActivity : ComponentActivity() {
@@ -20,31 +21,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             EducationApplicationTheme {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(8.dp)
-                ) {
-                    PostCard()
-                }
+                MainScreen()
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun TestText() {
-//    Text(
-//        buildAnnotatedString {
-//            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-//                append("Tak")
-//            }
-//            append("Hello")
-//            append(" ")
-//            append("Kirya")
-//        }
-//    )
-
 }
