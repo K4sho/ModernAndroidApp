@@ -1,6 +1,7 @@
 package ru.kspavliy.educationapplication.ui.vkscreens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,63 +31,117 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import ru.kspavliy.educationapplication.R
+import ru.kspavliy.educationapplication.domain.posts.FeedPostItem
+import ru.kspavliy.educationapplication.domain.posts.StatisticDataItem
+import ru.kspavliy.educationapplication.domain.posts.StatisticType
+import ru.kspavliy.educationapplication.domain.posts.getItemByType
 import ru.kspavliy.educationapplication.ui.theme.EducationApplicationTheme
 
 /** Карточка поста в ленте */
 @Composable
-fun PostCard() {
+fun PostCard(
+    modifier: Modifier = Modifier,
+    postData: FeedPostItem,
+    onLikeClickListener: (StatisticDataItem) -> Unit,
+    onShareClickListener: (StatisticDataItem) -> Unit,
+    onViewClickListener: (StatisticDataItem) -> Unit,
+    onCommentClickListener: (StatisticDataItem) -> Unit
+) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
-        )
+        ),
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
                 .padding(8.dp)
         ) {
-            PostHeader()
+            PostHeader(feedPost = postData)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = LoremIpsum(8).values.joinToString())
+            Text(text = postData.contentText)
             Spacer(modifier = Modifier.height(8.dp))
             Image(
                 modifier = Modifier
                     .fillMaxWidth(),
-                painter = painterResource(id = R.drawable.post_content_image),
+                painter = painterResource(id = postData.postImageResId),
                 contentDescription = "content image",
                 contentScale = ContentScale.FillWidth
             )
             Spacer(modifier = Modifier.height(8.dp))
-            PostStats()
+            PostStats(
+                statistics = postData.statistic,
+                onLikeClickListener = onLikeClickListener,
+                onShareClickListener = onShareClickListener,
+                onViewClickListener = onViewClickListener,
+                onCommentClickListener = onCommentClickListener
+            )
         }
     }
 }
 
 /** Отображение статистики поста */
 @Composable
-private fun PostStats() {
+private fun PostStats(
+    statistics: List<StatisticDataItem>,
+    onLikeClickListener: (StatisticDataItem) -> Unit,
+    onShareClickListener: (StatisticDataItem) -> Unit,
+    onViewClickListener: (StatisticDataItem) -> Unit,
+    onCommentClickListener: (StatisticDataItem) -> Unit
+) {
     Row {
         Row(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconWithText(resIconId = R.drawable.ic_views_count, text = "966")
+            IconWithText(
+                resIconId = R.drawable.ic_views_count,
+                text = statistics.getItemByType(StatisticType.VIEWS).count.toString(),
+                onItemClickListener = {
+                    onViewClickListener(statistics.getItemByType(StatisticType.VIEWS))
+                }
+            )
         }
         Row(
             modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            IconWithText(resIconId = R.drawable.ic_share, text = "16")
-            IconWithText(resIconId = R.drawable.ic_comment, text = "28")
-            IconWithText(resIconId = R.drawable.ic_like, text = "140")
+            IconWithText(
+                resIconId = R.drawable.ic_share,
+                text = statistics.getItemByType(StatisticType.SHARE).count.toString(),
+                onItemClickListener = {
+                    onShareClickListener(statistics.getItemByType(StatisticType.SHARE))
+                }
+            )
+            IconWithText(
+                resIconId = R.drawable.ic_comment,
+                text = statistics.getItemByType(StatisticType.COMMENTS).count.toString(),
+                onItemClickListener = {
+                    onCommentClickListener(statistics.getItemByType(StatisticType.COMMENTS))
+                }
+            )
+            IconWithText(
+                resIconId = R.drawable.ic_like,
+                text = statistics.getItemByType(StatisticType.LIKES).count.toString(),
+                onItemClickListener = {
+                    onLikeClickListener(statistics.getItemByType(StatisticType.LIKES))
+                }
+            )
         }
     }
 }
 
 /** Отображение иконки и текстом справа от нее */
 @Composable
-private fun IconWithText(resIconId: Int, text: String) {
+private fun IconWithText(
+    resIconId: Int,
+    text: String,
+    onItemClickListener: () -> Unit
+) {
     Row(
+        modifier = Modifier.clickable {
+            onItemClickListener()
+        },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -100,7 +155,9 @@ private fun IconWithText(resIconId: Int, text: String) {
 }
 
 @Composable
-private fun PostHeader() {
+private fun PostHeader(
+    feedPost: FeedPostItem
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -110,18 +167,18 @@ private fun PostHeader() {
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape),
-            painter = painterResource(id = R.drawable.post_comunity_thumbnail),
+            painter = painterResource(id = feedPost.groupIconResId),
             contentDescription = "group image"
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "/dev/null",
+                text = feedPost.groupName,
                 color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "14:00",
+                text = feedPost.postTime,
                 color = MaterialTheme.colorScheme.onSecondary
             )
         }
@@ -134,19 +191,19 @@ private fun PostHeader() {
 }
 
 // < -- PREVIEW REGION -- >
-
-@Preview
-@Composable
-private fun PreviewPostCardLightTheme() {
-    EducationApplicationTheme(darkTheme = false) {
-        PostCard()
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewPostCardDarkTheme() {
-    EducationApplicationTheme(darkTheme = true) {
-        PostCard()
-    }
-}
+//
+//@Preview
+//@Composable
+//private fun PreviewPostCardLightTheme() {
+//    EducationApplicationTheme(darkTheme = false) {
+//        PostCard()
+//    }
+//}
+//
+//@Preview
+//@Composable
+//private fun PreviewPostCardDarkTheme() {
+//    EducationApplicationTheme(darkTheme = true) {
+//        PostCard()
+//    }
+//}
