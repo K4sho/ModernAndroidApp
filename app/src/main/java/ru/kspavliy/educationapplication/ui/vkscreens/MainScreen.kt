@@ -1,54 +1,44 @@
 package ru.kspavliy.educationapplication.ui.vkscreens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import ru.kspavliy.educationapplication.domain.posts.FeedPostItem
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import ru.kspavliy.educationapplication.navigation.NavigationBarItem
+import ru.kspavliy.educationapplication.navigation.AppNavGraph
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
 ) {
+
+    val navHostController = rememberNavController()
+
     Scaffold(
         bottomBar = {
             NavigationBar {
-                val selectedItemPosition = rememberSaveable {
-                    mutableIntStateOf(0)
-                }
-
+                val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
                 val items = listOf(
-                    ru.kspavliy.educationapplication.data.NavigationBarItem.Home,
-                    ru.kspavliy.educationapplication.data.NavigationBarItem.Favorite,
-                    ru.kspavliy.educationapplication.data.NavigationBarItem.Profile
+                    NavigationBarItem.Home,
+                    NavigationBarItem.Favorite,
+                    NavigationBarItem.Profile
                 )
-                items.forEachIndexed { index, navBarItem ->
+                items.forEach { navBarItem ->
                     NavigationBarItem(
-                        selected = selectedItemPosition.value == index,
-                        onClick = { selectedItemPosition.value = index },
+                        selected = currentRoute == navBarItem.screen.route,
+                        onClick = { navHostController.navigate(navBarItem.screen.route) },
                         icon = { Icon(navBarItem.icon, contentDescription = null) },
                         label = { Text(text = stringResource(id = navBarItem.titleResId)) },
                         colors = NavigationBarItemDefaults.colors(
@@ -62,42 +52,19 @@ fun MainScreen(
                 }
             }
         }
-    ) {
-        val feedPosts = viewModel.feedPosts.observeAsState(listOf())
+    ) { paddingValues ->
 
-        LazyColumn(
-            modifier = Modifier.padding(it),
-            contentPadding = PaddingValues(
-                top = 16.dp,
-                start = 8.dp,
-                end = 8.dp,
-                bottom = 100.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(8.dp) // Расстояние между всеми элементами
-        ) {
-            items(items = feedPosts.value, key = { it.id }) { feedPost ->
-                val dissmissState = rememberDismissState(
-                    positionalThreshold = { 200.dp.toPx() }
+        AppNavGraph(
+            navHostController = navHostController,
+            homeScreenContent = {
+                HomeScreen(
+                    viewModel = viewModel,
+                    paddingValues = paddingValues
                 )
-                if (dissmissState.isDismissed(DismissDirection.EndToStart)) {
-                    viewModel.remove(feedPost)
-                }
-                SwipeToDismiss(
-                    modifier = Modifier.animateItemPlacement(),
-                    state = dissmissState,
-                    background = {},
-                    directions = setOf(DismissDirection.EndToStart),
-                    dismissContent = {
-                        PostCard(
-                            postData = feedPost,
-                            onViewClickListener = { viewModel.updateCount(feedPost, it) },
-                            onLikeClickListener = { viewModel.updateCount(feedPost, it) },
-                            onShareClickListener = { viewModel.updateCount(feedPost, it) },
-                            onCommentClickListener = { viewModel.updateCount(feedPost, it) }
-                        )
-                    }
-                )
-            }
-        }
+            },
+            favoriteScreenContent = { Text(text = "Test Favorite Screen", color = Color.Black) },
+            profielScreenContent = { Text(text = "Test Profile Screen", color = Color.Black) }
+        )
+
     }
 }

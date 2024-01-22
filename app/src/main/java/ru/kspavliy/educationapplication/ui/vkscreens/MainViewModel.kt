@@ -3,9 +3,9 @@ package ru.kspavliy.educationapplication.ui.vkscreens
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ru.kspavliy.educationapplication.navigation.NavigationBarItem
 import ru.kspavliy.educationapplication.domain.posts.FeedPostItem
 import ru.kspavliy.educationapplication.domain.posts.StatisticDataItem
-import java.lang.IllegalStateException
 
 class MainViewModel : ViewModel() {
 
