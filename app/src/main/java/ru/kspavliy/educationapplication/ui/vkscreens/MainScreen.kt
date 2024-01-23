@@ -16,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ru.kspavliy.educationapplication.navigation.NavigationBarItem
 import ru.kspavliy.educationapplication.navigation.AppNavGraph
+import ru.kspavliy.educationapplication.navigation.Screen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -38,7 +39,15 @@ fun MainScreen(
                 items.forEach { navBarItem ->
                     NavigationBarItem(
                         selected = currentRoute == navBarItem.screen.route,
-                        onClick = { navHostController.navigate(navBarItem.screen.route) },
+                        onClick = {
+                            navHostController.navigate(navBarItem.screen.route) {
+                                launchSingleTop = true
+                                popUpTo(Screen.NewsFeed.route) {
+                                    saveState = true
+                                }
+                                restoreState = true
+                            }
+                        },
                         icon = { Icon(navBarItem.icon, contentDescription = null) },
                         label = { Text(text = stringResource(id = navBarItem.titleResId)) },
                         colors = NavigationBarItemDefaults.colors(
