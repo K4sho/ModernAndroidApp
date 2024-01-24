@@ -17,13 +17,10 @@ import ru.kspavliy.educationapplication.navigation.AppNavGraph
 import ru.kspavliy.educationapplication.navigation.NavigationBarItem
 import ru.kspavliy.educationapplication.navigation.rememberNavigationState
 import ru.kspavliy.educationapplication.ui.vkscreens.posts.HomeScreen
-import ru.kspavliy.educationapplication.ui.vkscreens.viewmodels.MainViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(
-    viewModel: MainViewModel
-) {
+fun MainScreen() {
 
     val navigationState = rememberNavigationState()
 
@@ -62,12 +59,12 @@ fun MainScreen(
             navHostController = navigationState.navHostController,
             homeScreenContent = {
                 HomeScreen(
-                    viewModel = viewModel,
-                    paddingValues = paddingValues
+                    paddingValues = paddingValues,
+                    onCommentClickListener = {}
                 )
             },
-            favoriteScreenContent = { Text(text = "Test Favorite Screen", color = Color.Black) },
-            profielScreenContent = { Text(text = "Test Profile Screen", color = Color.Black) }
+            favoriteScreenContent = { Text(text = "Test Favorite Screen", color = MaterialTheme.colorScheme.onPrimary) },
+            profielScreenContent = { Text(text = "Test Profile Screen", color = MaterialTheme.colorScheme.onPrimary) }
         )
 
     }
