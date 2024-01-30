@@ -35,13 +35,17 @@ import ru.kspavliy.educationapplication.data.CommentsScreenState
 import ru.kspavliy.educationapplication.domain.posts.FeedPostItem
 import ru.kspavliy.educationapplication.domain.posts.PostComment
 import ru.kspavliy.educationapplication.ui.vkscreens.viewmodels.CommentsViewModel
+import ru.kspavliy.educationapplication.ui.vkscreens.viewmodels.CommentsViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsScreen(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    feedPostItem: FeedPostItem
 ) {
-    val viewModel: CommentsViewModel = viewModel()
+    val viewModel: CommentsViewModel = viewModel(
+        factory = CommentsViewModelFactory(feedPostItem)
+    )
     val screenState = viewModel.screenState.observeAsState(CommentsScreenState.Initial)
     val currentState = screenState.value
 

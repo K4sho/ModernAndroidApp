@@ -9,13 +9,20 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
+import ru.kspavliy.educationapplication.domain.posts.FeedPostItem
 import ru.kspavliy.educationapplication.navigation.AppNavGraph
 import ru.kspavliy.educationapplication.navigation.NavigationBarItem
+import ru.kspavliy.educationapplication.navigation.Screen
 import ru.kspavliy.educationapplication.navigation.rememberNavigationState
+import ru.kspavliy.educationapplication.ui.vkscreens.posts.CommentsScreen
 import ru.kspavliy.educationapplication.ui.vkscreens.posts.HomeScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -23,22 +30,30 @@ import ru.kspavliy.educationapplication.ui.vkscreens.posts.HomeScreen
 fun MainScreen() {
 
     val navigationState = rememberNavigationState()
+    val commentsToPost: MutableState<FeedPostItem?> = remember {
+        mutableStateOf(null)
+    }
 
     Scaffold(
         bottomBar = {
             NavigationBar {
                 val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
                 val items = listOf(
                     NavigationBarItem.Home,
                     NavigationBarItem.Favorite,
                     NavigationBarItem.Profile
                 )
                 items.forEach { navBarItem ->
+                    // Если мы находимся на экране комментариев или постов, то вернется true, т.к они лежут внутри графа Home
+                    val selected = navBackStackEntry?.destination?.hierarchy?.any {
+                        it.route == navBarItem.screen.route
+                    } ?: false
                     NavigationBarItem(
-                        selected = currentRoute == navBarItem.screen.route,
+                        selected = selected,
                         onClick = {
-                            navigationState.navigateTo(navBarItem.screen.route)
+                            if (!selected) {
+                                navigationState.navigateTo(navBarItem.screen.route)
+                            }
                         },
                         icon = { Icon(navBarItem.icon, contentDescription = null) },
                         label = { Text(text = stringResource(id = navBarItem.titleResId)) },
@@ -57,14 +72,35 @@ fun MainScreen() {
 
         AppNavGraph(
             navHostController = navigationState.navHostController,
-            homeScreenContent = {
+            newsFeedScreenContent = {
                 HomeScreen(
                     paddingValues = paddingValues,
-                    onCommentClickListener = {}
+                    onCommentClickListener = {
+                        commentsToPost.value = it
+                        navigationState.navigateToComments()
+                    }
                 )
             },
-            favoriteScreenContent = { Text(text = "Test Favorite Screen", color = MaterialTheme.colorScheme.onPrimary) },
-            profielScreenContent = { Text(text = "Test Profile Screen", color = MaterialTheme.colorScheme.onPrimary) }
+            commentsScreenContent = {
+                CommentsScreen(
+                    feedPostItem = commentsToPost.value!!,
+                    onBackPressed = {
+                        navigationState.navHostController.popBackStack()
+                    }
+                )
+            },
+            favoriteScreenContent = {
+                Text(
+                    text = "Test Favorite Screen",
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            },
+            profielScreenContent = {
+                Text(
+                    text = "Test Profile Screen",
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         )
 
     }

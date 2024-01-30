@@ -16,7 +16,7 @@ sealed class NavigationBarItem(
     data object Home : NavigationBarItem(
         titleResId = R.string.navigation_bar_item_home_title,
         icon = Icons.Outlined.Home,
-        screen = Screen.NewsFeed
+        screen = Screen.Home
     )
 
     data object Favorite : NavigationBarItem(

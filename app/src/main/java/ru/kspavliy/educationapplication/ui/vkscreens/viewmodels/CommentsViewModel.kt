@@ -8,13 +8,15 @@ import ru.kspavliy.educationapplication.domain.posts.FeedPostItem
 import ru.kspavliy.educationapplication.domain.posts.PostComment
 
 /** Вьюмодель для экрана с комментариями */
-class CommentsViewModel : ViewModel() {
+class CommentsViewModel(
+    private val feedPostItem: FeedPostItem
+) : ViewModel() {
 
     private val _screenState = MutableLiveData<CommentsScreenState>()
     val screenState: LiveData<CommentsScreenState> = _screenState
 
     init {
-        loadComments(FeedPostItem())
+        loadComments(feedPostItem)
     }
 
     fun loadComments(feedPostItem: FeedPostItem) {
